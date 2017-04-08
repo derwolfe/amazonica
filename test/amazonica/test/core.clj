@@ -1,5 +1,5 @@
 (ns amazonica.test.core
-  (:require [clojure.test :refer [deftest is]]
+  (:require [clojure.test :refer [deftest is testing]]
             [clojure.set :as set]
             [amazonica.core :as c]
             [amazonica.aws
@@ -142,3 +142,31 @@
   (let [unrelated-var #'amazonica.aws.ec2/describe-addresses]
     (is (= (set (keys (meta unrelated-var)))
            #{:ns :name :amazonica/client :amazonica/methods}))))
+
+
+(deftest keys->cred-tests
+  (let [access-key "an access key"
+        secret-key "a secret"
+        session-token "session token string"
+        endpoint "endpoint string"]
+    (testing "works with the normal access-key and secret"
+      (is (= {:access-key access-key
+              :secret-key secret-key}
+             (c/keys->cred access-key secret-key))))
+    (testing "if an endpoint is present, tacks it on"
+      (is (= {:access-key access-key
+              :secret-key secret-key
+              :endpoint endpoint}
+             (c/keys->cred access-key secret-key endpoint)
+             (c/keys->cred access-key secret-key endpoint nil))))
+    (testing "if a session token is present, tacks it on as well."
+      (is (= {:access-key access-key
+              :secret-key secret-key
+              :session-token session-token}
+             (c/keys->cred access-key secret-key nil session-token))))
+    (testing "works for all optional posargs."
+      (is (= {:access-key access-key
+              :secret-key secret-key
+              :session-token session-token
+              :endpoint endpoint}
+             (c/keys->cred access-key secret-key endpoint session-token))))))

@@ -97,12 +97,18 @@
    :stack-trace  (stack->string e)})
 
 (defn keys->cred
-  [access-key secret-key & [endpoint]]
+  [access-key secret-key & [endpoint session-token]]
   (let [credential {:access-key access-key
-                    :secret-key secret-key}]
-    (if-not (empty? endpoint)
-      (merge credential {:endpoint endpoint})
-      credential)))
+                    :secret-key secret-key}
+        optional-posargs {:endpoint endpoint
+                          :session-token session-token}]
+    (reduce-kv
+     (fn [m k v]
+       (if (some? v)
+         (assoc m k v)
+         m))
+     credential
+     optional-posargs)))
 
 (defn defcredential
   "Specify the AWS access key, secret key and optional

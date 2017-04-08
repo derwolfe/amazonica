@@ -127,7 +127,7 @@
 (defmacro with-credential
   "Per invocation binding of credentials for ad-hoc
   service calls using alternate user/password combos
-  (and endpoints)."
+  (as well as endpoints and session tokens)."
   [cred & body]
   `(binding [*credentials*
              (let [cred# ~cred]

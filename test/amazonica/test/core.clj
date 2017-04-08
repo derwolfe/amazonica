@@ -174,17 +174,31 @@
 
 (deftest with-credential-tests
   ;; the with-credential macro works by setting the dynamic, thread local binding amazonica.core/*credential*.
-  (let [b #(var-get #'amazonica.core/*credentials*)
-        access-key "access"
+  (let [access-key "access"
         secret-key "secret"
-        token "token"
-        endpoint "endpoint"  ;; this might need to be an enum value...
-        ]
-    (testing "with-credential works with access and secret key"
-      (c/with-credential ["a-key" "a-secret"]
-        (is (= (.getAWSAccessKeyId (b)) access-key))
-        (is (= (.getAWSSecretKey (b)) secret-key)))
-      (testing "works with session tokens"
-        (is (= (.getAWSAccessKeyId (b)) access-key))
-        (is (= (.getAWSSecretKey (b)) secret-key))
-        (is (= (.getSessionToken (b)) token))))))
+        session-token "token"
+        endpoint "endpoint"]
+    (testing "binds the access and secret key"
+      (c/with-credential [access-key secret-key]
+        (is (= {:access-key access-key
+                :secret-key secret-key}
+               @#'amazonica.core/*credentials*))))
+    (testing "binds an optional endpoint"
+      (c/with-credential [access-key secret-key endpoint]
+        (is (= {:access-key access-key
+                :secret-key secret-key
+                :endpoint endpoint}
+               @#'amazonica.core/*credentials*))))
+    (testing "binds a session token and no endpoint"
+      (c/with-credential [access-key secret-key nil session-token]
+        (is (= {:access-key access-key
+                :secret-key secret-key
+                :session-token session-token}
+               @#'amazonica.core/*credentials*))))
+    (testing "binds an endpoint and session token"
+      (c/with-credential [access-key secret-key endpoint session-token]
+        (is (= {:access-key access-key
+                :secret-key secret-key
+                :endpoint endpoint
+                :session-token session-token}
+               @#'amazonica.core/*credentials*))))))

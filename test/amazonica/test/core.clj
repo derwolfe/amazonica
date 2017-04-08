@@ -173,11 +173,12 @@
 
 
 (deftest with-credential-tests
-  ;; the with-credential macro works by setting the dynamic, thread local binding amazonica.core/*credential*.
-  (let [access-key "access"
-        secret-key "secret"
-        session-token "token"
-        endpoint "endpoint"]
+  ;; the with-credential macro works by setting the dynamic, thread local
+  ;; binding amazonica.core/*credential*.
+  (let [access-key "an access key"
+        secret-key "a secret"
+        session-token "session token string"
+        endpoint "endpoint string"]
     (testing "binds the access and secret key"
       (c/with-credential [access-key secret-key]
         (is (= {:access-key access-key
